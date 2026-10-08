@@ -1,0 +1,255 @@
+const express = require("express");
+
+const cors = require("cors");
+
+const mongoose = require("mongoose");
+
+const Student = require("./models/Student");
+
+require("dotenv").config();
+
+const app = express();
+
+app.use(cors());
+
+app.use(express.json());
+
+mongoose.connect(process.env.MONGO_URI)
+
+.then(() => console.log("Connected to MongoDB"))
+
+.catch(error => console.log("MongoDB connection error:", error));
+
+app.get("/", (req, res) => res.send("Server is running!"));
+
+app.get("/students", async (req, res) => {
+
+try {
+
+const students = await Student.find();
+
+res.json(students);
+
+} catch (error) {
+
+res.status(500).json({ message: error.message });
+
+}
+
+});
+
+app.post("/students", async (req, res) => {
+
+try {
+
+const student = new Student(req.body);
+
+await student.save();
+
+res.status(201).json(student);
+
+} catch (error) {
+
+res.status(500).json({ message: error.message });
+
+}
+
+});
+
+app.delete("/students/:id", async (req, res) => {
+
+try {
+
+const student = await Student.findByIdAndDelete(req.params.id);
+
+if (!student) return res.status(404).json({ message: "Not found" });
+
+res.json({ message: "Student deleted" });
+
+} catch (error) {
+
+res.status(500).json({ message: error.message });
+
+}
+
+});
+
+app.put("/students/:id", async (req, res) => {
+
+try {
+
+const student = await Student.findByIdAndUpdate(
+
+req.params.id, req.body, { new: true }
+
+);
+
+if (!student) return res.status(404).json({ message: "Not found" });
+
+res.json(student);
+
+} catch (error) {
+
+res.status(500).json({ message: error.message });
+
+}
+
+});
+
+app.listen(5000, () => console.log("Server running on port 5000"));
+ 
+ 
+import { useEffect, useState } from "react";
+
+import axios from "axios";
+
+function App() {
+
+const [students, setStudents] = useState([]);
+
+const [name, setName] = useState("");
+
+const [course, setCourse] = useState("");
+
+const [age, setAge] = useState("");
+
+const [editingId, setEditingId] = useState(null);
+
+const getStudents = async () => {
+
+try {
+
+const response = await axios.get("http://localhost:5000/students");
+
+setStudents(response.data);
+
+} catch (error) {
+
+console.log("Failed to load students:", error);
+ 
+}
+
+};
+
+useEffect(() => { getStudents(); }, []);
+
+const handleSubmit = async () => {
+
+if (!name.trim() || !course.trim() || age === "") {
+
+alert("Please fill in all fields");
+
+return;
+
+}
+
+const data = { name, course, age: Number(age) };
+
+try {
+
+if (editingId) {
+
+await axios.put(
+
+`http://localhost:5000/students/${editingId}`, data
+
+);
+
+} else {
+
+await axios.post("http://localhost:5000/students", data);
+
+}
+
+setName("");
+
+setCourse("");
+
+setAge("");
+
+setEditingId(null);
+
+await getStudents();
+
+} catch (error) {
+
+console.log(error);
+
+alert("Failed to save student");
+
+}
+
+};
+
+const deleteStudent = async (id) => {
+
+try {
+
+await axios.delete(`http://localhost:5000/students/${id}`);
+
+await getStudents();
+
+} catch (error) {
+
+console.log(error);
+
+alert("Failed to delete student");
+
+}
+
+};
+
+const editStudent = (student) => {
+
+setName(student.name);
+
+setCourse(student.course);
+
+setAge(String(student.age));
+
+setEditingId(student._id);
+
+};
+ 
+return (
+<div>
+<h1>Student Management System</h1>
+<h2>{editingId ? "Edit Student" : "Add Student"}</h2>
+<input placeholder="Name" value={name}
+
+onChange={(e) => setName(e.target.value)} />
+<input placeholder="Course" value={course}
+
+onChange={(e) => setCourse(e.target.value)} />
+<input type="number" placeholder="Age" value={age}
+
+onChange={(e) => setAge(e.target.value)} />
+<button onClick={handleSubmit}>
+
+{editingId ? "Update Student" : "Add Student"}
+</button>
+<h2>Students</h2>
+
+{students.map((student) => (
+<div key={student._id}>
+<p>Name: {student.name}</p>
+<p>Course: {student.course}</p>
+<p>Age: {student.age}</p>
+ 
+<button onClick={() => editStudent(student)}>Edit</button>
+<button onClick={() => deleteStudent(student._id)}>
+
+Delete
+</button>
+<hr />
+</div>
+
+))}
+</div>
+
+);
+
+}
+
+export default App;
+ 
