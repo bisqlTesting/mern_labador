@@ -1,11 +1,11 @@
+
 import { useEffect, useState } from "react";
-import axios from "axios"
+import axios from "axios";
 
-
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 function App() {
-
-  const [students, setStudents] = useState([])
+  const [students, setStudents] = useState([]);
   const [name, setName] = useState("");
   const [course, setCourse] = useState("");
   const [age, setAge] = useState("");
@@ -13,32 +13,41 @@ function App() {
 
   const getStudents = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/students");
+      const response = await axios.get(`${API_URL}/students`);
       setStudents(response.data);
     } catch (error) {
       console.log("Failed to load students:", error);
     }
   };
 
-  useEffect(() => {getStudents();}, []);
+  useEffect(() => {
+    getStudents();
+  }, []);
+
   const handleSubmit = async () => {
     if (!name.trim() || !course.trim() || age === "") {
       alert("Please fill in all fields");
       return;
     }
-    const data = { name, course, age: Number(age) };
+
+    const data = {
+      name,
+      course,
+      age: Number(age)
+    };
+
     try {
       if (editingId) {
-        await axios.put(
-          `http://localhost:5000/students/${editingId}`, data
-        );
+        await axios.put(`${API_URL}/students/${editingId}`, data);
       } else {
-        await axios.post("http://localhost:5000/students", data);
+        await axios.post(`${API_URL}/students`, data);
       }
+
       setName("");
       setCourse("");
       setAge("");
       setEditingId(null);
+
       await getStudents();
     } catch (error) {
       console.log(error);
@@ -48,7 +57,7 @@ function App() {
 
   const deleteStudent = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/students/${id}`);
+      await axios.delete(`${API_URL}/students/${id}`);
       await getStudents();
     } catch (error) {
       console.log(error);
@@ -63,57 +72,73 @@ function App() {
     setEditingId(student._id);
   };
 
-
-
-  useEffect(() => {
-    axios
-      .get("http://localhost:5000/students")
-      .then((response) => {
-        setStudents(response.data)
-      })
-  }, []);
-
-
   return (
     <div>
-      <h1 >Student Management System</h1>
-      <h2 >{editingId ? "Edit Student" : "Add Student"}</h2>
+      <h1>Student Management System</h1>
 
-      <p>Enter Name: </p>
-      <input placeholder="Enter Student Name" value={name} onChange={(e) => setName(e.target.value)} />
+      <h2>{editingId ? "Edit Student" : "Add Student"}</h2>
 
-      <p>Enter Course: </p>
-      <input placeholder="Enter Student Course" value={course} onChange={(e) => setCourse(e.target.value)} />
+      <p>Enter Name:</p>
+      <input
+        className="input"
+        placeholder="Enter Student Name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
 
-      <p>Enter Age</p>
-      <input type="number" placeholder="Age" value={age} onChange={(e) => setAge(e.target.value)} />
-      <br/>
-      
-      <br/>
-      <button onClick={handleSubmit}>
+      <p>Enter Course:</p>
+      <input
+        className="input"
+        placeholder="Enter Student Course"
+        value={course}
+        onChange={(e) => setCourse(e.target.value)}
+      />
 
+      <p>Enter Age:</p>
+      <input
+        className="input"
+        type="number"
+        placeholder="Age"
+        value={age}
+        onChange={(e) => setAge(e.target.value)}
+      />
+
+      <br />
+      <br />
+
+      <button className="submitButton" onClick={handleSubmit}>
         {editingId ? "Update Student" : "Add Student"}
       </button>
 
       <h2>Students</h2>
 
       {students.map((student) => (
-        <div key={student._id}>
-          <p>Name: {student.name}</p>
-          <p>Course: {student.course}</p>
-          <p>Age: {student.age}</p>
+        <div className="studentsInfo" key={student._id}>
+          <p className="studentDisplay">Name: {student.name}</p>
+          <p className="studentDisplay">Course: {student.course}</p>
+          <p className="studentDisplay">Age: {student.age}</p>
 
-          <button onClick={() => editStudent(student)}>Edit</button>
-          <button onClick={() => deleteStudent(student._id)}>
-
-            Delete
+          <button
+            className="editButton"
+            onClick={() => editStudent(student)}
+          >
+            Edit
           </button>
 
-        </div>
+          <br />
 
+          <button
+            className="deleteButton"
+            onClick={() => deleteStudent(student._id)}
+          >
+            Delete
+          </button>
+        </div>
       ))}
     </div>
   );
 }
 
 export default App;
+
+// JOHN MICHAEL J. LABADOR INF_237

@@ -1,0 +1,50 @@
+body {
+  background-color: #a6bbe6;
+  color: rgb(0, 0, 0);
+  padding: 40px;
+  font-family: Arial;
+  text-align: center;
+}
+.input{
+    font-size: 20px;
+    border-radius: 9px;
+}
+h2{
+    color: black;
+    font-family: Arial;
+    font-weight: 900;
+    font-size: 30px ;
+}
+p{
+    color: black;
+    font-family: Arial;
+    font-weight: 900;
+    margin-bottom: 2px;
+}
+.submitButton{
+    background-color: rgb(46, 99, 46);
+    border: 2px solid black;
+    font-size: 20px;
+    border-radius: 20px;
+}
+.deleteButton{
+    background-color: rgb(138, 62, 62);
+    border: 2px solid black;
+    font-size: 20px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+}
+.editButton{
+    background-color: rgb(226, 223, 64);
+    border: 2px solid black;
+    font-size: 20px;
+    border-radius: 20px;
+    margin-bottom: 3px;
+    margin-top: 15px;
+}
+
+.studentDisplay{
+    font-size: 15px;
+    margin: 2px;
+
+}
